@@ -1,6 +1,28 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_flutter/responsive/mobile_screen_layout.dart';
+import 'package:instagram_flutter/responsive/responsive_layout_screen.dart';
+import 'package:instagram_flutter/responsive/web_screen_layout.dart';
+import 'package:instagram_flutter/screens/login_screen.dart';
+import 'package:instagram_flutter/screens/signup_screen.dart';
+import 'package:instagram_flutter/utils/colors.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: 'AIzaSyCoFZ0swLxj6fa0CmwVa9ziLKNkIO5FSsE',
+        appId: "1:15928180554:web:5d8b11194e2d4941a4cbb3",
+        messagingSenderId: "15928180554",
+        projectId: "instagram-clone-cb906",
+        storageBucket: "instagram-clone-cb906.appspot.com",
+      ),
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
   runApp(const MyApp());
 }
 
@@ -12,55 +34,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Instagram',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: mobileBackgroundColor,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      home: const SigupScreen(),
+      //const ResponsiveLayout(
+      //   webScreenLayout: WebScreenLayout(),
+      //   mobileScreenLayout: MobileScreenLayout(),
+      // ),
     );
   }
 }
