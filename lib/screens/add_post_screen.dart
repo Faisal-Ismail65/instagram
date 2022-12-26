@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/providers/user_provider.dart';
+import 'package:instagram_flutter/resources/firestore_methods.dart';
 
 import 'package:instagram_flutter/utils/colors.dart';
 import 'package:instagram_flutter/utils/utils.dart';
@@ -19,13 +22,41 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Uint8List? _file;
 
   final TextEditingController _descripionController = TextEditingController();
+  bool isLoading = false;
 
   void postImage(
     String uid,
     String username,
     String profImage,
   ) async {
-    try {} catch (e) {}
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      String res = await FirestoreMethods().uploadPost(
+        _descripionController.text,
+        _file!,
+        uid,
+        username,
+        profImage,
+      );
+      if (res == 'Success') {
+        setState(() {
+          isLoading = false;
+        });
+        showSnackbar('Posted Successfully', context);
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        showSnackbar(res, context);
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      showSnackbar(e.toString(), context);
+    }
   }
 
   _selectImage(BuildContext context) async {
@@ -100,7 +131,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
               title: const Text("Post"),
               actions: [
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => postImage(
+                    user.uid,
+                    user.username,
+                    user.photoUrl,
+                  ),
                   child: const Text(
                     'Post',
                     style: TextStyle(
@@ -114,6 +149,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             ),
             body: Column(
               children: [
+                isLoading ? const LinearProgressIndicator() : Container(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
